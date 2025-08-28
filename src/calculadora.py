@@ -115,6 +115,7 @@ class CalculatorWindow(QMainWindow):
 
             self.ui.display.setText(str(formatted_result))
             self.reset_calculator()
+            self.waiting_for_operand = True
 
         except ValueError:
             self.ui.display.setText("Syntax Error")
