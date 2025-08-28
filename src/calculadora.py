@@ -15,6 +15,11 @@ class CalculatorWindow(QMainWindow):
         #Conectar botones
         self.connect_buttons()
 
+        #Variables para guardar informacion
+        self.first_number = ""
+        self.current_operator = ""
+        self.waiting_for_operand = False
+
     def center_on_screen(self):
         screen = self.screen().availableGeometry()
         size = self.geometry()
@@ -34,7 +39,61 @@ class CalculatorWindow(QMainWindow):
         self.ui.btn_8.clicked.connect(lambda: self.on_number_clicked("8"))
         self.ui.btn_9.clicked.connect(lambda: self.on_number_clicked("9"))
 
+        self.ui.btn_dot.clicked.connect(self.on_dot_clicked)
+        self.ui.btn_clear.clicked.connect(self.clear_display)
+
+        self.ui.btn_plus.clicked.connect(lambda: self.on_operator_clicked("+"))
+        self.ui.btn_minus.clicked.connect(lambda: self.on_operator_clicked("-"))
+        self.ui.btn_multiply.clicked.connect(lambda: self.on_operator_clicked("*"))
+        self.ui.btn_divide.clicked.connect(lambda: self.on_operator_clicked("/"))
+
+        self.ui.btn_equal.clicked.connect(self.equal_operand)
+
     def on_number_clicked(self, number):
+        if self.waiting_for_operand:
+            self.ui.display.setText(number)
+            self.waiting_for_operand = False
+        else:
+            current_text = self.ui.display.text()
+            new_text = current_text + number
+            self.ui.display.setText(new_text)
+
+    def on_dot_clicked(self):
         current_text = self.ui.display.text()
-        new_text = current_text + number
-        self.ui.display.setText(new_text)
+
+        if "." not in current_text:
+            self.ui.display.setText(current_text + ".")
+
+    def clear_display(self):
+        self.ui.display.setText("")
+
+    def on_operator_clicked(self, operator):
+        self.first_number = self.ui.display.text()
+        self.current_operator = operator
+        self.waiting_for_operand = True
+    
+    def equal_operand(self):
+        try:
+            first_num = float(self.first_number)
+            second_num = float(self.ui.display.text())
+
+            if self.current_operator == "+":
+                result = first_num + second_num
+            elif self.current_operator == "-":
+                result = first_num - second_num
+            elif self.current_operator == "*":
+                result = first_num * second_num
+            elif self.current_operator == "/":
+                if second_num != 0:
+                    result = first_num / second_num
+                else:
+                    self.ui.display.setText("Syntax Error")
+                    return
+            
+            self.ui.display.setText(str(result))
+            self.first_number = ""
+            self.current_operator = ""
+            self.waiting_for_operand = False
+
+        except ValueError:
+            self.ui.display.setText("Syntax Error")
