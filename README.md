@@ -8,16 +8,22 @@ Calculadora básica desarrollada con PySide6 como proyecto de aprendizaje de int
 - ✅ Botones numéricos (0-9)
 - ✅ Manejo de números decimales
 - ✅ Botón Clear (C)
+- ✅ Botón Delete (borrar último dígito)
+- ✅ Botón Porcentaje (% simple y con operadores)
 - ✅ Manejo de errores (división por cero)
-- ⏳ En desarrollo: Botón Delete y Porcentaje
+- ⏳ En desarrollo: Doble display para mejor UX
 
 ## Tecnologías
-- Python 3.x
+- Python 3.11.5
 - PySide6
 - Qt Designer
 
 ## Próximas mejoras
-1. Botón Delete y funcionalidad de porcentaje
+1. Doble display para mejor UX
 2. Soporte de teclado
-3. Doble display para mejor UX
-4. Mejoras visuales de diseño
+3. Mejoras visuales de diseño
+4. Empaquetado de la aplicación
+
+## Documentación
+- Código documentado con docstrings en español
+- Funciones principales comentadas
