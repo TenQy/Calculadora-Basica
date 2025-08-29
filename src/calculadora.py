@@ -45,6 +45,7 @@ class CalculatorWindow(QMainWindow):
         self.ui.btn_dot.clicked.connect(self.on_dot_clicked)
         self.ui.btn_clear.clicked.connect(self.clear_display)
         self.ui.btn_delete.clicked.connect(self.on_delete_clicked)
+        self.ui.btn_percent.clicked.connect(self.on_percent_clicked)
 
         self.ui.btn_plus.clicked.connect(lambda: self.on_operator_clicked("+"))
         self.ui.btn_minus.clicked.connect(lambda: self.on_operator_clicked("-"))
@@ -90,6 +91,38 @@ class CalculatorWindow(QMainWindow):
         else:
             new_text = current_text[:-1]
             self.ui.display.setText(new_text)
+        
+    def on_percent_clicked(self):
+        """
+        Maneja el cálculo de porcentaje según el contexto actual.
+        
+        Si no hay operador: convierte el número a porcentaje (divide por 100)
+        Si hay operador: calcula el porcentaje del primer número
+        """
+        current_text = self.ui.display.text()
+
+        if not current_text or current_text == "Syntax Error":
+            return
+        
+        try:
+            current_number = float(current_text)
+
+            if not self.current_operator or not self.first_number:
+                result = current_number / 100
+                if result == int(result):
+                    formatted_result = str(int(result))
+                else:
+                    formatted_result = str(result)
+            else:
+                base_number = float(self.first_number)
+                result = (current_number / 100) * base_number
+            
+
+            self.ui.display.setText(formatted_result)
+            
+        except ValueError:
+            self.ui.display.setText("Syntax Error")
+            self.reset_calculator()
 
     def clear_display(self):
         """Limpia el display y reinicia la calculadora."""
