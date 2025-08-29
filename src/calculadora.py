@@ -18,6 +18,9 @@ class CalculatorWindow(QMainWindow):
         #Variables para guardar informacion
         self.reset_calculator()
 
+        #Empezar display con 0
+        self.ui.display.setText("0")
+
     def center_on_screen(self):
         """Centra la aplicación en la pantalla."""
         screen = self.screen().availableGeometry()
@@ -41,6 +44,7 @@ class CalculatorWindow(QMainWindow):
 
         self.ui.btn_dot.clicked.connect(self.on_dot_clicked)
         self.ui.btn_clear.clicked.connect(self.clear_display)
+        self.ui.btn_delete.clicked.connect(self.on_delete_clicked)
 
         self.ui.btn_plus.clicked.connect(lambda: self.on_operator_clicked("+"))
         self.ui.btn_minus.clicked.connect(lambda: self.on_operator_clicked("-"))
@@ -74,9 +78,22 @@ class CalculatorWindow(QMainWindow):
             if "." not in current_text:
                 self.ui.display.setText(current_text + ".")
 
+    def on_delete_clicked(self):
+        """Borra el último digito del número actual en el display."""
+        current_text = self.ui.display.text()
+
+        if not current_text or current_text == "Syntax Error":
+            return
+        
+        if len(current_text) == 1:
+            self.ui.display.setText("0")
+        else:
+            new_text = current_text[:-1]
+            self.ui.display.setText(new_text)
+
     def clear_display(self):
         """Limpia el display y reinicia la calculadora."""
-        self.ui.display.setText("")
+        self.ui.display.setText("0")
         self.reset_calculator()
 
     def should_clear_display(self):
@@ -87,7 +104,7 @@ class CalculatorWindow(QMainWindow):
             bool: True si debe limpiarse, False en caso contrario
         """
         current_text = self.ui.display.text()
-        return (self.waiting_for_operand or current_text == "Syntax Error")
+        return (self.waiting_for_operand or current_text == "Syntax Error" or current_text == "0")
     
     def reset_calculator(self):
         """Limpia todas las variables de inicio."""
