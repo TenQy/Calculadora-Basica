@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>326</width>
-    <height>362</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@ QPushButton#btn_equal {
 	color: black;
 }
 
-QLineEdit {
+QLabel#main_display {
 	min-height: 50px;
 }</string>
   </property>
@@ -39,20 +39,32 @@ QLineEdit {
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLineEdit" name="display">
+     <widget class="QLabel" name="history_display">
       <property name="font">
        <font>
-        <pointsize>20</pointsize>
+        <pointsize>12</pointsize>
        </font>
       </property>
       <property name="text">
-       <string/>
+       <string>TextLabel</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
-      <property name="readOnly">
-       <bool>true</bool>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="main_display">
+      <property name="font">
+       <font>
+        <pointsize>22</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
      </widget>
     </item>

@@ -15,7 +15,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QLayout, QLineEdit,
+from PySide6.QtWidgets import (QApplication, QGridLayout, QLabel, QLayout,
     QMainWindow, QPushButton, QSizePolicy, QVBoxLayout,
     QWidget)
 
@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(326, 362)
+        MainWindow.resize(326, 400)
         MainWindow.setStyleSheet(u"QPushButton {\n"
 "    min-height: 50px;\n"
 "    max-height: 50px;\n"
@@ -39,7 +39,7 @@ class Ui_MainWindow(object):
 "	color: black;\n"
 "}\n"
 "\n"
-"QLineEdit {\n"
+"QLabel#main_display {\n"
 "	min-height: 50px;\n"
 "}")
         self.centralwidget = QWidget(MainWindow)
@@ -47,15 +47,23 @@ class Ui_MainWindow(object):
         self.centralwidget.setStyleSheet(u"")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.display = QLineEdit(self.centralwidget)
-        self.display.setObjectName(u"display")
+        self.history_display = QLabel(self.centralwidget)
+        self.history_display.setObjectName(u"history_display")
         font = QFont()
-        font.setPointSize(20)
-        self.display.setFont(font)
-        self.display.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-        self.display.setReadOnly(True)
+        font.setPointSize(12)
+        self.history_display.setFont(font)
+        self.history_display.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.verticalLayout.addWidget(self.display)
+        self.verticalLayout.addWidget(self.history_display)
+
+        self.main_display = QLabel(self.centralwidget)
+        self.main_display.setObjectName(u"main_display")
+        font1 = QFont()
+        font1.setPointSize(22)
+        self.main_display.setFont(font1)
+        self.main_display.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.verticalLayout.addWidget(self.main_display)
 
         self.gridLayout = QGridLayout()
         self.gridLayout.setSpacing(6)
@@ -169,6 +177,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.history_display.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.main_display.setText(QCoreApplication.translate("MainWindow", u"0", None))
         self.btn_multiply.setText(QCoreApplication.translate("MainWindow", u"x", None))
         self.btn_dot.setText(QCoreApplication.translate("MainWindow", u".", None))
         self.btn_plus.setText(QCoreApplication.translate("MainWindow", u"+", None))

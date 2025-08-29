@@ -18,9 +18,6 @@ class CalculatorWindow(QMainWindow):
         #Variables para guardar informacion
         self.reset_calculator()
 
-        #Empezar display con 0
-        self.ui.display.setText("0")
-
     def center_on_screen(self):
         """Centra la aplicación en la pantalla."""
         screen = self.screen().availableGeometry()
@@ -43,14 +40,14 @@ class CalculatorWindow(QMainWindow):
         self.ui.btn_9.clicked.connect(lambda: self.on_number_clicked("9"))
 
         self.ui.btn_dot.clicked.connect(self.on_dot_clicked)
-        self.ui.btn_clear.clicked.connect(self.clear_display)
+        self.ui.btn_clear.clicked.connect(self.reset_calculator)
         self.ui.btn_delete.clicked.connect(self.on_delete_clicked)
         self.ui.btn_percent.clicked.connect(self.on_percent_clicked)
 
         self.ui.btn_plus.clicked.connect(lambda: self.on_operator_clicked("+"))
         self.ui.btn_minus.clicked.connect(lambda: self.on_operator_clicked("-"))
-        self.ui.btn_multiply.clicked.connect(lambda: self.on_operator_clicked("*"))
-        self.ui.btn_divide.clicked.connect(lambda: self.on_operator_clicked("/"))
+        self.ui.btn_multiply.clicked.connect(lambda: self.on_operator_clicked("x"))
+        self.ui.btn_divide.clicked.connect(lambda: self.on_operator_clicked("÷"))
 
         self.ui.btn_equal.clicked.connect(self.equal_operand)
 
@@ -61,36 +58,51 @@ class CalculatorWindow(QMainWindow):
         Args:
             number (str): El dígito presionado como string ("0"-"9")
         """
+
+        if self.just_calculated:
+            self.reset_calculator()
+
         if self.should_clear_display():
-            self.ui.display.setText(number)
+            self.update_display(number)
             self.waiting_for_operand = False
         else:
-            current_text = self.ui.display.text()
-            new_text = current_text + number
-            self.ui.display.setText(new_text)
+            current_text = self.ui.main_display.text()
+            
+            if self.is_within_input_limit(current_text, number):
+                new_text = current_text + number
+                self.update_display(new_text)
 
     def on_dot_clicked(self):
         """Maneja el evento cuando se presiona el botón del punto."""
+        if self.just_calculated:
+            self.reset_calculator()
+            self.update_display("0.")
+            return
+
         if self.should_clear_display():
-            self.ui.display.setText("0.")
+            self.update_display("0.")
             self.waiting_for_operand = False
         else:
-            current_text = self.ui.display.text() 
-            if "." not in current_text:
-                self.ui.display.setText(current_text + ".")
+            current_text = self.ui.main_display.text() 
+            if "." not in current_text and self.is_within_input_limit(current_text, "."):
+                new_text = current_text + "."
+                self.update_display(new_text)
 
     def on_delete_clicked(self):
         """Borra el último digito del número actual en el display."""
-        current_text = self.ui.display.text()
+        if self.just_calculated:
+            return
+        
+        current_text = self.ui.main_display.text()
 
         if not current_text or current_text == "Syntax Error":
             return
         
         if len(current_text) == 1:
-            self.ui.display.setText("0")
+            self.ui.main_display.setText("0")
         else:
             new_text = current_text[:-1]
-            self.ui.display.setText(new_text)
+            self.update_display(new_text)
         
     def on_percent_clicked(self):
         """
@@ -99,35 +111,36 @@ class CalculatorWindow(QMainWindow):
         Si no hay operador: convierte el número a porcentaje (divide por 100)
         Si hay operador: calcula el porcentaje del primer número
         """
-        current_text = self.ui.display.text()
+        if self.just_calculated and not self.current_operator:
+            self.just_calculated = False
+            self.ui.history_display.setText("")
+
+        current_text = self.ui.main_display.text()
 
         if not current_text or current_text == "Syntax Error":
             return
         
         try:
-            current_number = float(current_text)
+            current_number = self.get_numeric_value(current_text)
 
             if not self.current_operator or not self.first_number:
                 result = current_number / 100
-                if result == int(result):
-                    formatted_result = str(int(result))
-                else:
-                    formatted_result = str(result)
+                self.ui.history_display.setText("")
             else:
                 base_number = float(self.first_number)
                 result = (current_number / 100) * base_number
-            
 
-            self.ui.display.setText(formatted_result)
-            
-        except ValueError:
-            self.ui.display.setText("Syntax Error")
+                percent_display = str(int(current_number)) if current_number == int(current_number) else str(current_number)
+                base_display = str(int(base_number)) if base_number == int(base_number) else str(base_number)
+
+                self.operation_history = f"{base_display} {self.current_operator} {percent_display}% of {base_display}"
+                self.ui.history_display.setText(self.operation_history)
+
+            self.update_display(result)
+
+        except ValueError:            
             self.reset_calculator()
-
-    def clear_display(self):
-        """Limpia el display y reinicia la calculadora."""
-        self.ui.display.setText("0")
-        self.reset_calculator()
+            self.ui.main_display.setText("Syntax Error")
 
     def should_clear_display(self):
         """
@@ -136,7 +149,7 @@ class CalculatorWindow(QMainWindow):
         Returns: 
             bool: True si debe limpiarse, False en caso contrario
         """
-        current_text = self.ui.display.text()
+        current_text = self.ui.main_display.text()
         return (self.waiting_for_operand or current_text == "Syntax Error" or current_text == "0")
     
     def reset_calculator(self):
@@ -144,6 +157,81 @@ class CalculatorWindow(QMainWindow):
         self.first_number = ""
         self.current_operator = ""
         self.waiting_for_operand = False
+        self.operation_history = ""
+        self.just_calculated = False
+
+        self.ui.history_display.setText("")
+        self.ui.main_display.setText("0")
+
+    def is_numeric_string(self, text):
+        """
+        Verifica si un string representa un número válido.
+        Acepta números con comas como separadores de miles.
+        """
+        if not isinstance(text, str):
+            return False
+        
+        clean_text = text.replace(",", "").strip()
+
+        try:
+            float(clean_text)
+            return True
+        except ValueError:
+            return False      
+
+    def format_number(self, number):
+        """
+        Formatea números con separadores de miles.
+        
+        Args:
+            number: Número a formatear (float, int, o str)
+        
+        Returns:
+            str: Número formateado con comas
+        """
+        if isinstance(number, str):
+            clean_number = number.replace(",", "")
+            try:
+                number = float(clean_number)
+            except ValueError:
+                return number
+            
+        if number == int(number):
+            return f"{int(number):,}"
+        else:
+            return f"{number:,.10g}"
+
+    def update_display(self, value):
+        """
+        Actualiza el display principal con formato y ajuste de fuente.
+        
+        Args:
+            value: Valor a mostrar (número o string)
+        """
+        if isinstance(value, (int, float)) or self.is_numeric_string(value):
+            formatted_text = self.format_number(value)
+        else:
+            formatted_text = str(value)
+
+        self.ui.main_display.setText(formatted_text)
+
+    def is_within_input_limit(self, current_text, new_char=""):
+        """
+        Verifica si el input está dentro del límite permitido.
+        
+        Args:
+            current_text (str): Texto actual en el display
+            new_char (str): Carácter que se quiere añadir
+        
+        Returns:
+            bool: True si está dentro del límite, False si no
+        """
+        clean_text = current_text.replace(",", "")
+        test_text = clean_text + new_char
+
+        digits_only = test_text.replace(".", "").replace("-", "")
+        return len(digits_only) <= 16
+
 
     def on_operator_clicked(self, operator):
         """
@@ -152,9 +240,38 @@ class CalculatorWindow(QMainWindow):
         Args:
             operator (str): El operador presionado ("+","-","*","/")
         """
-        self.first_number = self.ui.display.text()
+        if self.just_calculated:
+            self.first_number = self.get_numeric_value(self.ui.main_display.text())
+            self.just_calculated = False
+        else:
+            self.first_number = self.get_numeric_value(self.ui.main_display.text())
+
         self.current_operator = operator
         self.waiting_for_operand = True
+
+        formatted_first = self.format_number(self.first_number)
+        self.operation_history = f"{formatted_first} {operator}"
+        self.ui.history_display.setText(self.operation_history)
+
+    def get_numeric_value(self, text):
+        """
+        Extrae el valor numérico de un texto, removiendo formato.
+        
+        Args:
+            text (str): Texto que puede contener comas
+            
+        Returns:
+            float: Valor numérico sin formato
+        """
+        if isinstance(text, (int, float)):
+            return float(text)
+        
+        clean_text = text.replace(",", "")
+
+        try:
+            return float(clean_text)
+        except ValueError:
+            raise ValueError(f"No se puede convertir '{text}' a número.")
     
     def equal_operand(self):
         """Calcula y muestra el resultado de la operación aritmética actual."""
@@ -163,31 +280,35 @@ class CalculatorWindow(QMainWindow):
         
         try:
             first_num = float(self.first_number)
-            second_num = float(self.ui.display.text())
+            second_num = self.get_numeric_value(self.ui.main_display.text())
 
             if self.current_operator == "+":
                 result = first_num + second_num
             elif self.current_operator == "-":
                 result = first_num - second_num
-            elif self.current_operator == "*":
+            elif self.current_operator == "x":
                 result = first_num * second_num
-            elif self.current_operator == "/":
+            elif self.current_operator == "÷":
                 if second_num != 0:
                     result = first_num / second_num
                 else:
-                    self.ui.display.setText("Syntax Error")
                     self.reset_calculator()
+                    self.ui.main_display.setText("Syntax Error")
                     return
-            
-            if result == int(result):
-                formatted_result = str(int(result))
-            else:
-                formatted_result = str(result)
 
-            self.ui.display.setText(str(formatted_result))
-            self.reset_calculator()
-            self.waiting_for_operand = True
+            formatted_first = self.format_number(first_num)
+            formatted_second = self.format_number(second_num)
+
+            self.operation_history = f"{formatted_first} {self.current_operator} {formatted_second} ="
+            self.ui.history_display.setText(self.operation_history)
+
+            self.update_display(result)
+            self.just_calculated = True
+
+            self.first_number = ""
+            self.current_operator = ""
+            self.waiting_for_operand = False
 
         except ValueError:
-            self.ui.display.setText("Syntax Error")
             self.reset_calculator()
+            self.ui.main_display.setText("Syntax Error")
