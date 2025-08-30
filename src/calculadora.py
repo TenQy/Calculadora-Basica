@@ -84,8 +84,10 @@ class CalculatorWindow(QMainWindow):
             self.waiting_for_operand = False
         else:
             current_text = self.ui.main_display.text() 
-            if "." not in current_text and self.is_within_input_limit(current_text, "."):
-                new_text = current_text + "."
+            clean_text = current_text.replace(",", "")
+
+            if "." not in clean_text and self.is_within_input_limit(current_text, "."):
+                new_text = clean_text + "."
                 self.update_display(new_text)
 
     def on_delete_clicked(self):
@@ -99,7 +101,7 @@ class CalculatorWindow(QMainWindow):
             return
         
         if len(current_text) == 1:
-            self.ui.main_display.setText("0")
+            self.update_display("0")
         else:
             new_text = current_text[:-1]
             self.update_display(new_text)
@@ -196,10 +198,22 @@ class CalculatorWindow(QMainWindow):
             except ValueError:
                 return number
             
+        if clean_number.endswith("."):
+            integer_part = clean_number[:-1]
+            formatted = f"{int(integer_part):,}."
+            return formatted
+
         if number == int(number):
-            return f"{int(number):,}"
+            formatted = f"{int(number):,}"
         else:
-            return f"{number:,.10g}"
+            formatted = f"{number:,.16g}"
+
+        clean_formatted = formatted.replace(",", "")
+
+        if len(clean_formatted) > 17:
+            return f"{number:.6e}"
+        
+        return formatted
 
     def update_display(self, value):
         """
@@ -226,6 +240,7 @@ class CalculatorWindow(QMainWindow):
         Returns:
             bool: True si está dentro del límite, False si no
         """
+        
         clean_text = current_text.replace(",", "")
         test_text = clean_text + new_char
 

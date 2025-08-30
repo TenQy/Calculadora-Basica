@@ -50,7 +50,7 @@ class Ui_MainWindow(object):
         self.history_display = QLabel(self.centralwidget)
         self.history_display.setObjectName(u"history_display")
         font = QFont()
-        font.setPointSize(12)
+        font.setPointSize(9)
         self.history_display.setFont(font)
         self.history_display.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
