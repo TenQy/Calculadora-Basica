@@ -198,10 +198,10 @@ class CalculatorWindow(QMainWindow):
             except ValueError:
                 return number
             
-        if clean_number.endswith("."):
-            integer_part = clean_number[:-1]
-            formatted = f"{int(integer_part):,}."
-            return formatted
+            if clean_number.endswith("."):
+                integer_part = clean_number[:-1]
+                formatted = f"{int(integer_part):,}."
+                return formatted
 
         if number == int(number):
             formatted = f"{int(number):,}"
