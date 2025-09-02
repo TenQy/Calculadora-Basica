@@ -1,3 +1,4 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow
 from ui_generated.calculadora_ui import Ui_MainWindow
 
@@ -50,6 +51,67 @@ class CalculatorWindow(QMainWindow):
         self.ui.btn_divide.clicked.connect(lambda: self.on_operator_clicked("÷"))
 
         self.ui.btn_equal.clicked.connect(self.equal_operand)
+
+    def keyPressEvent(self, event):
+        """
+        Maneja los eventos de teclado para la calculadora.
+        
+        Args:
+            event (QKeyEvent): Evento de tecla presionada
+        """
+        key = event.key()
+        
+        number_keys = {
+            Qt.Key.Key_0: "0",
+            Qt.Key.Key_1: "1",
+            Qt.Key.Key_2: "2",
+            Qt.Key.Key_3: "3",
+            Qt.Key.Key_4: "4",
+            Qt.Key.Key_5: "5",
+            Qt.Key.Key_6: "6",
+            Qt.Key.Key_7: "7",
+            Qt.Key.Key_8: "8",
+            Qt.Key.Key_9: "9"
+        }
+
+        if key in number_keys:
+            self.on_number_clicked(number_keys[key])
+
+        operator_keys = {
+            Qt.Key.Key_Plus: "+",
+            Qt.Key.Key_Minus: "-",
+        }
+
+        if key in operator_keys:
+            self.on_operator_clicked(operator_keys[key])
+
+        if key == Qt.Key.Key_Period:
+            self.on_dot_clicked()
+        elif key == Qt.Key.Key_Backspace:
+            self.on_delete_clicked()
+        elif key == Qt.Key.Key_Escape:
+            self.reset_calculator()
+        elif key == Qt.Key.Key_Enter or key == Qt.Key.Key_Return:
+            self.equal_operand()
+
+        modifiers = event.modifiers()
+        shift_pressed = modifiers & Qt.KeyboardModifier.ShiftModifier
+
+        if shift_pressed:
+            shift_operators = {
+                Qt.Key.Key_Slash: "÷",
+                Qt.Key.Key_Asterisk: "x"
+            }
+
+            if key in shift_operators:
+                self.on_operator_clicked(shift_operators[key])
+            
+            if key == Qt.Key.Key_Percent:
+                self.on_percent_clicked()
+            elif key == Qt.Key.Key_Equal:
+                self.equal_operand()
+
+        return super().keyPressEvent(event)
 
     def on_number_clicked(self, number):
         """
