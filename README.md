@@ -71,10 +71,13 @@ Calculadora básica desarrollada con PySide6 como proyecto de aprendizaje de int
 ```
 calculator/
 ├── main.py                 # Punto de entrada
-├── calculator_window.py    # Lógica principal de la calculadora
+├── src/
+│   └── calculadora.py     # Lógica principal de la calculadora
 ├── ui_generated/          # UI generada por Qt Designer
 │   └── calculadora_ui.py
-└── calculadora.ui         # Archivo de diseño Qt Designer
+├── ui/                     # Archivo de diseño Qt Designer
+│   └── calculadora.ui
+└── 
 ```
 
 ### Métodos Principales

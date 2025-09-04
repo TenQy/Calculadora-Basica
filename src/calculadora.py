@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow
 from ui_generated.calculadora_ui import Ui_MainWindow
+from .animaciones import ButtonAnimator
 
 class CalculatorWindow(QMainWindow):
     def __init__(self):
@@ -8,7 +9,7 @@ class CalculatorWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("Calculator")
-        self.setFixedSize(326, 400)
+        self.setFixedSize(330, 400)
 
         #Centrar en pantalla
         self.center_on_screen()
@@ -18,6 +19,9 @@ class CalculatorWindow(QMainWindow):
 
         #Variables para guardar informacion
         self.reset_calculator()
+
+        #Crear variable para animaciones
+        self.animator = ButtonAnimator()
 
     def center_on_screen(self):
         """Centra la aplicación en la pantalla."""
@@ -29,16 +33,16 @@ class CalculatorWindow(QMainWindow):
 
     def connect_buttons(self):
         """Conecta la funcionalidad de todos los botones de la calculadora."""
-        self.ui.btn_0.clicked.connect(lambda: self.on_number_clicked("0"))
-        self.ui.btn_1.clicked.connect(lambda: self.on_number_clicked("1"))
-        self.ui.btn_2.clicked.connect(lambda: self.on_number_clicked("2"))
-        self.ui.btn_3.clicked.connect(lambda: self.on_number_clicked("3"))
-        self.ui.btn_4.clicked.connect(lambda: self.on_number_clicked("4"))
-        self.ui.btn_5.clicked.connect(lambda: self.on_number_clicked("5"))
-        self.ui.btn_6.clicked.connect(lambda: self.on_number_clicked("6"))
-        self.ui.btn_7.clicked.connect(lambda: self.on_number_clicked("7"))
-        self.ui.btn_8.clicked.connect(lambda: self.on_number_clicked("8"))
-        self.ui.btn_9.clicked.connect(lambda: self.on_number_clicked("9"))
+        self.ui.btn_0.clicked.connect(lambda: self.animated_number_click("0"))
+        self.ui.btn_1.clicked.connect(lambda: self.animated_number_click("1"))
+        self.ui.btn_2.clicked.connect(lambda: self.animated_number_click("2"))
+        self.ui.btn_3.clicked.connect(lambda: self.animated_number_click("3"))
+        self.ui.btn_4.clicked.connect(lambda: self.animated_number_click("4"))
+        self.ui.btn_5.clicked.connect(lambda: self.animated_number_click("5"))
+        self.ui.btn_6.clicked.connect(lambda: self.animated_number_click("6"))
+        self.ui.btn_7.clicked.connect(lambda: self.animated_number_click("7"))
+        self.ui.btn_8.clicked.connect(lambda: self.animated_number_click("8"))
+        self.ui.btn_9.clicked.connect(lambda: self.animated_number_click("9"))
 
         self.ui.btn_dot.clicked.connect(self.on_dot_clicked)
         self.ui.btn_clear.clicked.connect(self.reset_calculator)
@@ -112,6 +116,31 @@ class CalculatorWindow(QMainWindow):
                 self.equal_operand()
 
         return super().keyPressEvent(event)
+    
+    def animated_number_click(self, number):
+        """
+        Wrapper que anima el botón y ejecuta la lógica del número.
+        
+        Args:
+            number (str): El dígito presionado
+        """
+        button_map = {
+            "0": self.ui.btn_0,
+            "1": self.ui.btn_1,
+            "2": self.ui.btn_2,
+            "3": self.ui.btn_3,
+            "4": self.ui.btn_4,
+            "5": self.ui.btn_5,
+            "6": self.ui.btn_6,
+            "7": self.ui.btn_7,
+            "8": self.ui.btn_8,
+            "9": self.ui.btn_9
+        }
+
+        if number in button_map:
+            self.animator.animation_button_click(button_map[number])
+        
+        self.on_number_clicked(number)
 
     def on_number_clicked(self, number):
         """
