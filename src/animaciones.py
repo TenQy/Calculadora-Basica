@@ -32,7 +32,7 @@ class ButtonAnimator:
         animation.setKeyValueAt(0.5, reduced_geometry)
         animation.setKeyValueAt(1.0, original_geometry)
 
-        animation.setEasingCurve(QEasingCurve.Type.Linear)
+        animation.setEasingCurve(QEasingCurve.Type.OutBack)
 
         self.animations[id(button)] = animation
 

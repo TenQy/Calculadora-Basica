@@ -44,17 +44,16 @@ class CalculatorWindow(QMainWindow):
         self.ui.btn_8.clicked.connect(lambda: self.animated_number_click("8"))
         self.ui.btn_9.clicked.connect(lambda: self.animated_number_click("9"))
 
-        self.ui.btn_dot.clicked.connect(self.on_dot_clicked)
-        self.ui.btn_clear.clicked.connect(self.reset_calculator)
-        self.ui.btn_delete.clicked.connect(self.on_delete_clicked)
-        self.ui.btn_percent.clicked.connect(self.on_percent_clicked)
+        self.ui.btn_plus.clicked.connect(lambda: self.animated_operator_click("+"))
+        self.ui.btn_minus.clicked.connect(lambda: self.animated_operator_click("-"))
+        self.ui.btn_multiply.clicked.connect(lambda: self.animated_operator_click("x"))
+        self.ui.btn_divide.clicked.connect(lambda: self.animated_operator_click("÷"))
 
-        self.ui.btn_plus.clicked.connect(lambda: self.on_operator_clicked("+"))
-        self.ui.btn_minus.clicked.connect(lambda: self.on_operator_clicked("-"))
-        self.ui.btn_multiply.clicked.connect(lambda: self.on_operator_clicked("x"))
-        self.ui.btn_divide.clicked.connect(lambda: self.on_operator_clicked("÷"))
-
-        self.ui.btn_equal.clicked.connect(self.equal_operand)
+        self.ui.btn_dot.clicked.connect(self.animated_dot_click)
+        self.ui.btn_clear.clicked.connect(self.animated_clear_click)
+        self.ui.btn_delete.clicked.connect(self.animated_delete_click)
+        self.ui.btn_percent.clicked.connect(self.animated_percent_click)
+        self.ui.btn_equal.clicked.connect(self.animated_equal_click)
 
     def keyPressEvent(self, event):
         """
@@ -141,6 +140,45 @@ class CalculatorWindow(QMainWindow):
             self.animator.animation_button_click(button_map[number])
         
         self.on_number_clicked(number)
+
+    def animated_operator_click(self, operator):
+        """Wrapper que anima el botón y ejecuta la lógica del operador"""
+        operator_map = {
+            "+": self.ui.btn_plus,
+            "-": self.ui.btn_minus,
+            "x": self.ui.btn_multiply,
+            "÷": self.ui.btn_divide
+        }
+
+        if operator in operator_map:
+            self.animator.animation_button_click(operator_map[operator])
+
+        self.on_operator_clicked(operator)
+
+    def animated_dot_click(self):
+        """Wrapper para el botón del punto"""
+        self.animator.animation_button_click(self.ui.btn_dot)
+        self.on_dot_clicked()
+    
+    def animated_clear_click(self):
+        """Wrapper para el botón de clear"""
+        self.animator.animation_button_click(self.ui.btn_clear)
+        self.reset_calculator()
+
+    def animated_delete_click(self):
+        """Wrapper para el botón delete"""
+        self.animator.animation_button_click(self.ui.btn_delete)
+        self.on_delete_clicked()
+
+    def animated_percent_click(self):
+        """Wrapper para botón de porcentaje"""
+        self.animator.animation_button_click(self.ui.btn_percent)
+        self.on_percent_clicked()
+    
+    def animated_equal_click(self):
+        """Wrapper para botón de igual"""
+        self.animator.animation_button_click(self.ui.btn_equal)
+        self.equal_operand()
 
     def on_number_clicked(self, number):
         """
